@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Jira Wiki Table Converter</title>
+  <title>Jira Wiki Table Editor</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -27,43 +27,44 @@
             Jira Helper Tool
           </div>
           <h1 class="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
-            Jira Wiki Table Converter
+            Jira Wiki Table Editor
           </h1>
-          <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
-            Paste table จาก Excel / Google Sheet / Text แล้วแปลงเป็น Jira Wiki Table format ได้ทันที
+          <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-600 sm:text-base">
+            Paste Jira Wiki Table, convert เป็น table เพื่อแก้ไข แล้ว convert กลับเป็น Jira Wiki Table ได้ทันที
           </p>
         </div>
 
         <div class="rounded-2xl bg-slate-950 px-4 py-3 text-xs text-slate-100 shadow-lg">
-          <div class="font-semibold text-blue-200">Format Example</div>
+          <div class="font-semibold text-blue-200">Supported Format</div>
           <div class="mt-1 font-mono text-slate-300">||Heading 1||Heading 2||</div>
           <div class="font-mono text-slate-300">|Col A1|Col A2|</div>
         </div>
       </div>
     </section>
 
-    <section class="mb-5 flex flex-col gap-3 rounded-3xl border border-white/70 bg-white/80 p-4 shadow-xl shadow-blue-950/5 backdrop-blur lg:flex-row lg:items-center lg:justify-between">
+    <section class="mb-5 flex flex-col gap-3 rounded-3xl border border-white/70 bg-white/80 p-4 shadow-xl shadow-blue-950/5 backdrop-blur xl:flex-row xl:items-center xl:justify-between">
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
         <label class="flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:border-blue-300 hover:bg-blue-50">
           <input id="firstRowHeader" type="checkbox" checked class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
           First row is header
         </label>
-
-        <label class="flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:border-blue-300 hover:bg-blue-50">
-          <input id="autoConvert" type="checkbox" checked class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
-          Auto convert
-        </label>
       </div>
 
       <div class="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
-        <button onclick="convertNow()" class="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 active:scale-[0.98]">
-          Convert
+        <button onclick="wikiToTable()" class="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 active:scale-[0.98]">
+          Wiki → Table
         </button>
-        <button onclick="copyOutput()" class="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-slate-900/10 transition hover:bg-slate-700 active:scale-[0.98]">
-          Copy Output
+        <button onclick="tableToWiki()" class="rounded-2xl bg-indigo-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-700 active:scale-[0.98]">
+          Table → Wiki
         </button>
-        <button onclick="loadSample()" class="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 active:scale-[0.98]">
-          Load Sample
+        <button onclick="addRow()" class="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 active:scale-[0.98]">
+          Add Row
+        </button>
+        <button onclick="addColumn()" class="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 active:scale-[0.98]">
+          Add Column
+        </button>
+        <button onclick="copyWikiOutput()" class="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-slate-900/10 transition hover:bg-slate-700 active:scale-[0.98]">
+          Copy Wiki
         </button>
         <button onclick="clearAll()" class="rounded-2xl border border-red-200 bg-red-50 px-5 py-3 text-sm font-bold text-red-600 shadow-sm transition hover:bg-red-100 active:scale-[0.98]">
           Clear
@@ -71,107 +72,159 @@
       </div>
     </section>
 
-    <section class="grid gap-5 lg:grid-cols-2">
+    <section class="grid gap-5 xl:grid-cols-2">
       <div class="overflow-hidden rounded-3xl border border-white/70 bg-white/90 shadow-xl shadow-blue-950/5 backdrop-blur">
         <div class="flex items-center justify-between border-b border-slate-200 bg-white/80 px-5 py-4">
           <div>
-            <h2 class="font-bold text-slate-950">Input</h2>
-            <p class="text-xs text-slate-500">Paste raw table here</p>
+            <h2 class="font-bold text-slate-950">Wiki Input / Output</h2>
+            <p class="text-xs text-slate-500">Paste wiki table here, or get converted output here</p>
           </div>
-          <span id="inputCounter" class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">0 chars</span>
+          <span id="wikiCounter" class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">0 chars</span>
         </div>
         <textarea
-          id="input"
-          class="min-h-[560px] w-full resize-y border-0 bg-white p-5 font-mono text-sm leading-6 text-slate-800 outline-none placeholder:text-slate-400 focus:ring-0"
-          placeholder="Paste table here..."
+          id="wikiText"
+          class="min-h-[560px] w-full resize-y border-0 bg-slate-950 p-5 font-mono text-sm leading-6 text-blue-50 outline-none placeholder:text-slate-500 focus:ring-0"
+          placeholder="Paste Jira wiki table here..."
         ></textarea>
       </div>
 
       <div class="overflow-hidden rounded-3xl border border-white/70 bg-white/90 shadow-xl shadow-blue-950/5 backdrop-blur">
         <div class="flex items-center justify-between border-b border-slate-200 bg-white/80 px-5 py-4">
           <div>
-            <h2 class="font-bold text-slate-950">Jira Wiki Output</h2>
-            <p class="text-xs text-slate-500">Copy this result to Jira description</p>
+            <h2 class="font-bold text-slate-950">Editable Table</h2>
+            <p class="text-xs text-slate-500">Click cell to edit directly</p>
           </div>
-          <span id="outputCounter" class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">0 chars</span>
+          <span id="tableCounter" class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">0 rows</span>
         </div>
-        <textarea
-          id="output"
-          readonly
-          class="min-h-[560px] w-full resize-y border-0 bg-slate-950 p-5 font-mono text-sm leading-6 text-blue-50 outline-none placeholder:text-slate-500 focus:ring-0"
-          placeholder="Output will appear here..."
-        ></textarea>
+
+        <div class="max-h-[560px] overflow-auto bg-white p-4">
+          <table id="editableTable" class="min-w-full border-separate border-spacing-0 text-sm">
+            <tbody id="tableBody">
+              <tr>
+                <td class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-slate-500">
+                  Paste wiki table แล้วกด <strong>Wiki → Table</strong>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
 
     <div id="status" class="mt-4 min-h-6 text-sm font-semibold text-slate-500"></div>
 
     <section class="mt-6 rounded-3xl border border-white/70 bg-white/80 p-5 text-sm leading-7 text-slate-600 shadow-xl shadow-blue-950/5 backdrop-blur">
-      <h3 class="mb-2 font-bold text-slate-950">Supported Input</h3>
+      <h3 class="mb-2 font-bold text-slate-950">How to use</h3>
       <div class="grid gap-3 md:grid-cols-3">
         <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-          <div class="font-semibold text-slate-900">Excel / Google Sheet</div>
-          <div class="mt-1 text-xs text-slate-500">Copy แล้ว paste ได้เลย แบบ tab-separated</div>
+          <div class="font-semibold text-slate-900">1. Paste Wiki Table</div>
+          <div class="mt-1 text-xs text-slate-500">วาง Jira wiki table ในช่องซ้าย</div>
         </div>
         <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-          <div class="font-semibold text-slate-900">Pipe Table</div>
-          <div class="mt-1 font-mono text-xs text-slate-500">A | B | C</div>
+          <div class="font-semibold text-slate-900">2. Edit Table</div>
+          <div class="mt-1 text-xs text-slate-500">กด Wiki → Table แล้วแก้ไข cell ได้เลย</div>
         </div>
         <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-          <div class="font-semibold text-slate-900">Multi-space Text</div>
-          <div class="mt-1 text-xs text-slate-500">Column คั่นด้วย space หลายช่อง</div>
+          <div class="font-semibold text-slate-900">3. Convert Back</div>
+          <div class="mt-1 text-xs text-slate-500">กด Table → Wiki แล้ว copy กลับไปใส่ Jira</div>
         </div>
       </div>
     </section>
   </main>
 
   <script>
-    const inputEl = document.getElementById("input");
-    const outputEl = document.getElementById("output");
-    const statusEl = document.getElementById("status");
+    const wikiTextEl = document.getElementById("wikiText");
     const firstRowHeaderEl = document.getElementById("firstRowHeader");
-    const autoConvertEl = document.getElementById("autoConvert");
-    const inputCounterEl = document.getElementById("inputCounter");
-    const outputCounterEl = document.getElementById("outputCounter");
+    const tableBodyEl = document.getElementById("tableBody");
+    const statusEl = document.getElementById("status");
+    const wikiCounterEl = document.getElementById("wikiCounter");
+    const tableCounterEl = document.getElementById("tableCounter");
 
-    inputEl.addEventListener("input", () => {
-      updateCounters();
-      if (autoConvertEl.checked) convertNow(false);
-    });
+    let tableData = [];
 
-    firstRowHeaderEl.addEventListener("change", () => {
-      if (autoConvertEl.checked) convertNow(false);
-    });
+    wikiTextEl.addEventListener("input", updateCounters);
 
-    function convertNow(showStatus = true) {
-      const input = inputEl.value;
-      const result = convertToJiraWikiTable(input, {
-        firstRowHeader: firstRowHeaderEl.checked,
-      });
+    function wikiToTable() {
+      const wikiText = wikiTextEl.value.trim();
 
-      outputEl.value = result;
-      updateCounters();
-
-      if (showStatus) {
-        setStatus(result ? "Converted successfully." : "Nothing to convert.", result ? "success" : "error");
+      if (!wikiText) {
+        tableData = [];
+        renderTable();
+        setStatus("No wiki table to convert.", "error");
+        return;
       }
+
+      tableData = parseWikiTable(wikiText);
+      renderTable();
+      updateCounters();
+      setStatus(tableData.length ? "Converted wiki table to editable table." : "No valid table row found.", tableData.length ? "success" : "error");
     }
 
-    function convertToJiraWikiTable(input, options = {}) {
-      const firstRowHeader = options.firstRowHeader !== false;
+    function tableToWiki() {
+      syncTableDataFromDom();
 
-      const lines = input
-        .trim()
+      if (!tableData.length) {
+        wikiTextEl.value = "";
+        updateCounters();
+        setStatus("No table data to convert.", "error");
+        return;
+      }
+
+      wikiTextEl.value = convertTableDataToWiki(tableData, firstRowHeaderEl.checked);
+      updateCounters();
+      setStatus("Converted editable table back to wiki format.", "success");
+    }
+
+    function parseWikiTable(input) {
+      return input
         .split(/\r?\n/)
         .map(line => line.trim())
-        .filter(Boolean);
+        .filter(Boolean)
+        .filter(line => line.startsWith("|") && line.endsWith("|"))
+        .map(line => {
+          const isHeader = line.startsWith("||") && line.endsWith("||");
+          const delimiter = isHeader ? "||" : "|";
+          const normalizedLine = isHeader
+            ? line.replace(/^\|\|/, "").replace(/\|\|$/, "")
+            : line.replace(/^\|/, "").replace(/\|$/, "");
 
-      if (lines.length === 0) return "";
+          return splitEscaped(normalizedLine, delimiter).map(unescapeJiraCell);
+        });
+    }
 
-      const rows = lines.map(parseRow).filter(row => row.length > 0);
-      if (rows.length === 0) return "";
+    function splitEscaped(text, delimiter) {
+      const cells = [];
+      let current = "";
+      let index = 0;
 
+      while (index < text.length) {
+        const isEscapedPipe = text[index] === "\\" && text[index + 1] === "|";
+        const isDelimiter = text.startsWith(delimiter, index);
+
+        if (isEscapedPipe) {
+          current += "\\|";
+          index += 2;
+          continue;
+        }
+
+        if (isDelimiter) {
+          cells.push(current);
+          current = "";
+          index += delimiter.length;
+          continue;
+        }
+
+        current += text[index];
+        index += 1;
+      }
+
+      cells.push(current);
+      return cells;
+    }
+
+    function convertTableDataToWiki(rows, firstRowHeader) {
       return rows
+        .filter(row => row.some(cell => cleanCell(cell)))
         .map((row, index) => {
           const cells = row.map(escapeJiraCell);
           if (index === 0 && firstRowHeader) {
@@ -182,20 +235,130 @@
         .join("\n");
     }
 
-    function parseRow(line) {
-      if (line.includes("\t")) {
-        return line.split("\t").map(cleanCell);
+    function renderTable() {
+      tableBodyEl.innerHTML = "";
+
+      if (!tableData.length) {
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+        cell.colSpan = 1;
+        cell.className = "rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-slate-500";
+        cell.innerHTML = "Paste wiki table แล้วกด <strong>Wiki → Table</strong>";
+        row.appendChild(cell);
+        tableBodyEl.appendChild(row);
+        updateCounters();
+        return;
       }
 
-      if (line.includes("|")) {
-        return line
-          .replace(/^\|/, "")
-          .replace(/\|$/, "")
-          .split("|")
-          .map(cleanCell);
+      const maxColumns = Math.max(...tableData.map(row => row.length));
+      tableData = tableData.map(row => normalizeRow(row, maxColumns));
+
+      tableData.forEach((rowData, rowIndex) => {
+        const row = document.createElement("tr");
+
+        rowData.forEach((cellData, columnIndex) => {
+          const cell = document.createElement(rowIndex === 0 && firstRowHeaderEl.checked ? "th" : "td");
+          cell.contentEditable = "true";
+          cell.dataset.row = String(rowIndex);
+          cell.dataset.column = String(columnIndex);
+          cell.textContent = cellData;
+          cell.className = getCellClass(rowIndex === 0 && firstRowHeaderEl.checked);
+          row.appendChild(cell);
+        });
+
+        const actionCell = document.createElement("td");
+        actionCell.className = "sticky right-0 border-b border-slate-200 bg-white p-2 align-top";
+        actionCell.innerHTML = `
+          <button onclick="deleteRow(${rowIndex})" class="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-bold text-red-600 transition hover:bg-red-100">Delete</button>
+        `;
+        row.appendChild(actionCell);
+
+        tableBodyEl.appendChild(row);
+      });
+
+      updateCounters();
+    }
+
+    function getCellClass(isHeader) {
+      const baseClass = "min-w-40 border-b border-r border-slate-200 px-4 py-3 text-left outline-none focus:bg-blue-50 focus:ring-2 focus:ring-inset focus:ring-blue-400";
+      return isHeader
+        ? `${baseClass} bg-slate-100 font-bold text-slate-950`
+        : `${baseClass} bg-white text-slate-700`;
+    }
+
+    function syncTableDataFromDom() {
+      if (!tableData.length) return;
+
+      const cells = tableBodyEl.querySelectorAll("td[contenteditable='true'], th[contenteditable='true']");
+      cells.forEach(cell => {
+        const row = Number(cell.dataset.row);
+        const column = Number(cell.dataset.column);
+        if (!Number.isNaN(row) && !Number.isNaN(column)) {
+          tableData[row][column] = cell.textContent.trim();
+        }
+      });
+    }
+
+    function addRow() {
+      syncTableDataFromDom();
+
+      const columnCount = tableData.length ? Math.max(...tableData.map(row => row.length)) : 2;
+      tableData.push(Array.from({ length: columnCount }, () => ""));
+      renderTable();
+      setStatus("Added new row.", "success");
+    }
+
+    function addColumn() {
+      syncTableDataFromDom();
+
+      if (!tableData.length) {
+        tableData = [["", ""]];
+      } else {
+        tableData = tableData.map(row => [...row, ""]);
       }
 
-      return line.split(/\s{2,}/).map(cleanCell);
+      renderTable();
+      setStatus("Added new column.", "success");
+    }
+
+    function deleteRow(rowIndex) {
+      syncTableDataFromDom();
+      tableData.splice(rowIndex, 1);
+      renderTable();
+      setStatus("Deleted row.", "success");
+    }
+
+    async function copyWikiOutput() {
+      const text = wikiTextEl.value;
+
+      if (!text.trim()) {
+        setStatus("No wiki output to copy.", "error");
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(text);
+        setStatus("Copied wiki text to clipboard.", "success");
+      } catch (error) {
+        wikiTextEl.select();
+        document.execCommand("copy");
+        setStatus("Copied wiki text to clipboard.", "success");
+      }
+    }
+
+    function clearAll() {
+      wikiTextEl.value = "";
+      tableData = [];
+      renderTable();
+      updateCounters();
+      setStatus("Cleared.", "success");
+      wikiTextEl.focus();
+    }
+
+    function normalizeRow(row, maxColumns) {
+      const normalized = [...row];
+      while (normalized.length < maxColumns) normalized.push("");
+      return normalized;
     }
 
     function cleanCell(value) {
@@ -207,47 +370,18 @@
 
     function escapeJiraCell(value) {
       return cleanCell(value)
+        .replace(/\\\|/g, "|")
         .replace(/\|/g, "\\|")
         .replace(/\r?\n/g, " ");
     }
 
-    async function copyOutput() {
-      const text = outputEl.value;
-
-      if (!text.trim()) {
-        setStatus("No output to copy.", "error");
-        return;
-      }
-
-      try {
-        await navigator.clipboard.writeText(text);
-        setStatus("Copied output to clipboard.", "success");
-      } catch (error) {
-        outputEl.select();
-        document.execCommand("copy");
-        setStatus("Copied output to clipboard.", "success");
-      }
-    }
-
-    function clearAll() {
-      inputEl.value = "";
-      outputEl.value = "";
-      updateCounters();
-      setStatus("Cleared.", "success");
-      inputEl.focus();
-    }
-
-    function loadSample() {
-      inputEl.value = `No.\tType\tConsumer Group\tBroker\tTopic Name\tUser Consume\tUser Produce\tPassword\tProduce\tConsume\tLogstash\tRemark
-1\tExternal\tcore-email-otp-consumer.UAT\tDevops provide\temail.gw.otp.req.UAT\tsit_msg_email_common\tsit_msg_email_dlp, sit_msg_email_vbmobile\tขอ password แต่ละ user\tY\tY\tN\tExternal Produce / EmailGW Consume / MAX MSG Size 12MB / Partition -> 3
-2\tExternal\tcore-email-realtime-consumer.UAT\tDevops provide\temail.gw.realtime.req.UAT\tsit_msg_email_common\tsit_msg_email_dlp, sit_msg_email_vbmobile\tขอ password แต่ละ user\tY\tY\tN\tExternal Produce / EmailGW Consume / MAX MSG Size 12MB / Partition -> 3`;
-      convertNow(false);
-      setStatus("Sample loaded.", "success");
+    function unescapeJiraCell(value) {
+      return cleanCell(value).replace(/\\\|/g, "|");
     }
 
     function updateCounters() {
-      inputCounterEl.textContent = `${inputEl.value.length} chars`;
-      outputCounterEl.textContent = `${outputEl.value.length} chars`;
+      wikiCounterEl.textContent = `${wikiTextEl.value.length} chars`;
+      tableCounterEl.textContent = tableData.length ? `${tableData.length} rows` : "0 rows";
     }
 
     function setStatus(message, type) {
