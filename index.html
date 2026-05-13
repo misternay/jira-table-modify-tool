@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jira Wiki Table Converter</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ["Inter", "ui-sans-serif", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
+            mono: ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "monospace"],
+          },
+        },
+      },
+    };
+  </script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 text-slate-800">
+  <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <section class="mb-6 rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl shadow-blue-950/5 backdrop-blur">
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <div class="mb-3 inline-flex rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+            Jira Helper Tool
+          </div>
+          <h1 class="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
+            Jira Wiki Table Converter
+          </h1>
+          <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
+            Paste table จาก Excel / Google Sheet / Text แล้วแปลงเป็น Jira Wiki Table format ได้ทันที
+          </p>
+        </div>
+
+        <div class="rounded-2xl bg-slate-950 px-4 py-3 text-xs text-slate-100 shadow-lg">
+          <div class="font-semibold text-blue-200">Format Example</div>
+          <div class="mt-1 font-mono text-slate-300">||Heading 1||Heading 2||</div>
+          <div class="font-mono text-slate-300">|Col A1|Col A2|</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mb-5 flex flex-col gap-3 rounded-3xl border border-white/70 bg-white/80 p-4 shadow-xl shadow-blue-950/5 backdrop-blur lg:flex-row lg:items-center lg:justify-between">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <label class="flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:border-blue-300 hover:bg-blue-50">
+          <input id="firstRowHeader" type="checkbox" checked class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+          First row is header
+        </label>
+
+        <label class="flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:border-blue-300 hover:bg-blue-50">
+          <input id="autoConvert" type="checkbox" checked class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+          Auto convert
+        </label>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+        <button onclick="convertNow()" class="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 active:scale-[0.98]">
+          Convert
+        </button>
+        <button onclick="copyOutput()" class="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-slate-900/10 transition hover:bg-slate-700 active:scale-[0.98]">
+          Copy Output
+        </button>
+        <button onclick="loadSample()" class="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 active:scale-[0.98]">
+          Load Sample
+        </button>
+        <button onclick="clearAll()" class="rounded-2xl border border-red-200 bg-red-50 px-5 py-3 text-sm font-bold text-red-600 shadow-sm transition hover:bg-red-100 active:scale-[0.98]">
+          Clear
+        </button>
+      </div>
+    </section>
+
+    <section class="grid gap-5 lg:grid-cols-2">
+      <div class="overflow-hidden rounded-3xl border border-white/70 bg-white/90 shadow-xl shadow-blue-950/5 backdrop-blur">
+        <div class="flex items-center justify-between border-b border-slate-200 bg-white/80 px-5 py-4">
+          <div>
+            <h2 class="font-bold text-slate-950">Input</h2>
+            <p class="text-xs text-slate-500">Paste raw table here</p>
+          </div>
+          <span id="inputCounter" class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">0 chars</span>
+        </div>
+        <textarea
+          id="input"
+          class="min-h-[560px] w-full resize-y border-0 bg-white p-5 font-mono text-sm leading-6 text-slate-800 outline-none placeholder:text-slate-400 focus:ring-0"
+          placeholder="Paste table here..."
+        ></textarea>
+      </div>
+
+      <div class="overflow-hidden rounded-3xl border border-white/70 bg-white/90 shadow-xl shadow-blue-950/5 backdrop-blur">
+        <div class="flex items-center justify-between border-b border-slate-200 bg-white/80 px-5 py-4">
+          <div>
+            <h2 class="font-bold text-slate-950">Jira Wiki Output</h2>
+            <p class="text-xs text-slate-500">Copy this result to Jira description</p>
+          </div>
+          <span id="outputCounter" class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">0 chars</span>
+        </div>
+        <textarea
+          id="output"
+          readonly
+          class="min-h-[560px] w-full resize-y border-0 bg-slate-950 p-5 font-mono text-sm leading-6 text-blue-50 outline-none placeholder:text-slate-500 focus:ring-0"
+          placeholder="Output will appear here..."
+        ></textarea>
+      </div>
+    </section>
+
+    <div id="status" class="mt-4 min-h-6 text-sm font-semibold text-slate-500"></div>
+
+    <section class="mt-6 rounded-3xl border border-white/70 bg-white/80 p-5 text-sm leading-7 text-slate-600 shadow-xl shadow-blue-950/5 backdrop-blur">
+      <h3 class="mb-2 font-bold text-slate-950">Supported Input</h3>
+      <div class="grid gap-3 md:grid-cols-3">
+        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div class="font-semibold text-slate-900">Excel / Google Sheet</div>
+          <div class="mt-1 text-xs text-slate-500">Copy แล้ว paste ได้เลย แบบ tab-separated</div>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div class="font-semibold text-slate-900">Pipe Table</div>
+          <div class="mt-1 font-mono text-xs text-slate-500">A | B | C</div>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div class="font-semibold text-slate-900">Multi-space Text</div>
+          <div class="mt-1 text-xs text-slate-500">Column คั่นด้วย space หลายช่อง</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const inputEl = document.getElementById("input");
+    const outputEl = document.getElementById("output");
+    const statusEl = document.getElementById("status");
+    const firstRowHeaderEl = document.getElementById("firstRowHeader");
+    const autoConvertEl = document.getElementById("autoConvert");
+    const inputCounterEl = document.getElementById("inputCounter");
+    const outputCounterEl = document.getElementById("outputCounter");
+
+    inputEl.addEventListener("input", () => {
+      updateCounters();
+      if (autoConvertEl.checked) convertNow(false);
+    });
+
+    firstRowHeaderEl.addEventListener("change", () => {
+      if (autoConvertEl.checked) convertNow(false);
+    });
+
+    function convertNow(showStatus = true) {
+      const input = inputEl.value;
+      const result = convertToJiraWikiTable(input, {
+        firstRowHeader: firstRowHeaderEl.checked,
+      });
+
+      outputEl.value = result;
+      updateCounters();
+
+      if (showStatus) {
+        setStatus(result ? "Converted successfully." : "Nothing to convert.", result ? "success" : "error");
+      }
+    }
+
+    function convertToJiraWikiTable(input, options = {}) {
+      const firstRowHeader = options.firstRowHeader !== false;
+
+      const lines = input
+        .trim()
+        .split(/\r?\n/)
+        .map(line => line.trim())
+        .filter(Boolean);
+
+      if (lines.length === 0) return "";
+
+      const rows = lines.map(parseRow).filter(row => row.length > 0);
+      if (rows.length === 0) return "";
+
+      return rows
+        .map((row, index) => {
+          const cells = row.map(escapeJiraCell);
+          if (index === 0 && firstRowHeader) {
+            return `||${cells.join("||")}||`;
+          }
+          return `|${cells.join("|")}|`;
+        })
+        .join("\n");
+    }
+
+    function parseRow(line) {
+      if (line.includes("\t")) {
+        return line.split("\t").map(cleanCell);
+      }
+
+      if (line.includes("|")) {
+        return line
+          .replace(/^\|/, "")
+          .replace(/\|$/, "")
+          .split("|")
+          .map(cleanCell);
+      }
+
+      return line.split(/\s{2,}/).map(cleanCell);
+    }
+
+    function cleanCell(value) {
+      return String(value || "")
+        .replace(/\u00a0/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function escapeJiraCell(value) {
+      return cleanCell(value)
+        .replace(/\|/g, "\\|")
+        .replace(/\r?\n/g, " ");
+    }
+
+    async function copyOutput() {
+      const text = outputEl.value;
+
+      if (!text.trim()) {
+        setStatus("No output to copy.", "error");
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(text);
+        setStatus("Copied output to clipboard.", "success");
+      } catch (error) {
+        outputEl.select();
+        document.execCommand("copy");
+        setStatus("Copied output to clipboard.", "success");
+      }
+    }
+
+    function clearAll() {
+      inputEl.value = "";
+      outputEl.value = "";
+      updateCounters();
+      setStatus("Cleared.", "success");
+      inputEl.focus();
+    }
+
+    function loadSample() {
+      inputEl.value = `No.\tType\tConsumer Group\tBroker\tTopic Name\tUser Consume\tUser Produce\tPassword\tProduce\tConsume\tLogstash\tRemark
+1\tExternal\tcore-email-otp-consumer.UAT\tDevops provide\temail.gw.otp.req.UAT\tsit_msg_email_common\tsit_msg_email_dlp, sit_msg_email_vbmobile\tขอ password แต่ละ user\tY\tY\tN\tExternal Produce / EmailGW Consume / MAX MSG Size 12MB / Partition -> 3
+2\tExternal\tcore-email-realtime-consumer.UAT\tDevops provide\temail.gw.realtime.req.UAT\tsit_msg_email_common\tsit_msg_email_dlp, sit_msg_email_vbmobile\tขอ password แต่ละ user\tY\tY\tN\tExternal Produce / EmailGW Consume / MAX MSG Size 12MB / Partition -> 3`;
+      convertNow(false);
+      setStatus("Sample loaded.", "success");
+    }
+
+    function updateCounters() {
+      inputCounterEl.textContent = `${inputEl.value.length} chars`;
+      outputCounterEl.textContent = `${outputEl.value.length} chars`;
+    }
+
+    function setStatus(message, type) {
+      statusEl.textContent = message;
+
+      if (type === "success") {
+        statusEl.className = "mt-4 min-h-6 text-sm font-semibold text-emerald-600";
+        return;
+      }
+
+      if (type === "error") {
+        statusEl.className = "mt-4 min-h-6 text-sm font-semibold text-red-600";
+        return;
+      }
+
+      statusEl.className = "mt-4 min-h-6 text-sm font-semibold text-slate-500";
+    }
+
+    updateCounters();
+  </script>
+</body>
+</html>
