@@ -42,13 +42,11 @@
       </div>
     </section>
 
-    <section class="mb-5 flex flex-col gap-3 rounded-3xl border border-white/70 bg-white/80 p-4 shadow-xl shadow-blue-950/5 backdrop-blur xl:flex-row xl:items-center xl:justify-between">
-      <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <label class="flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:border-blue-300 hover:bg-blue-50">
-          <input id="firstRowHeader" type="checkbox" checked class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
-          First row is header
-        </label>
-      </div>
+    <section class="mb-5 flex flex-col gap-3 rounded-3xl border border-white/70 bg-white/80 p-4 shadow-xl shadow-blue-950/5 backdrop-blur lg:flex-row lg:items-center lg:justify-between">
+      <label class="flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:border-blue-300 hover:bg-blue-50">
+        <input id="firstRowHeader" type="checkbox" checked class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+        First row is header
+      </label>
 
       <div class="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
         <button onclick="wikiToTable()" class="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 active:scale-[0.98]">
@@ -56,12 +54,6 @@
         </button>
         <button onclick="tableToWiki()" class="rounded-2xl bg-indigo-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-700 active:scale-[0.98]">
           Table → Wiki
-        </button>
-        <button onclick="addRow()" class="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 active:scale-[0.98]">
-          Add Row
-        </button>
-        <button onclick="addColumn()" class="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 active:scale-[0.98]">
-          Add Column
         </button>
         <button onclick="copyWikiOutput()" class="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-slate-900/10 transition hover:bg-slate-700 active:scale-[0.98]">
           Copy Wiki
@@ -74,12 +66,18 @@
 
     <section class="grid gap-5">
       <div class="overflow-hidden rounded-3xl border border-white/70 bg-white/90 shadow-xl shadow-blue-950/5 backdrop-blur">
-        <div class="flex items-center justify-between border-b border-slate-200 bg-white/80 px-5 py-4">
+        <div class="flex flex-col gap-3 border-b border-slate-200 bg-white/80 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 class="font-bold text-slate-950">Wiki Input / Output</h2>
             <p class="text-xs text-slate-500">Paste wiki table here, or get converted output here</p>
           </div>
-          <span id="wikiCounter" class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">0 chars</span>
+          <div class="flex flex-wrap items-center gap-3">
+            <label class="flex items-center gap-2 text-xs font-semibold text-slate-500">
+              Height
+              <input id="wikiHeight" type="range" min="220" max="800" value="320" step="20" class="w-36 accent-blue-600" />
+            </label>
+            <span id="wikiCounter" class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">0 chars</span>
+          </div>
         </div>
         <textarea
           id="wikiText"
@@ -89,15 +87,36 @@
       </div>
 
       <div class="overflow-hidden rounded-3xl border border-white/70 bg-white/90 shadow-xl shadow-blue-950/5 backdrop-blur">
-        <div class="flex items-center justify-between border-b border-slate-200 bg-white/80 px-5 py-4">
+        <div class="flex flex-col gap-4 border-b border-slate-200 bg-white/80 px-5 py-4 xl:flex-row xl:items-center xl:justify-between">
           <div>
             <h2 class="font-bold text-slate-950">Editable Table</h2>
             <p class="text-xs text-slate-500">Click cell to edit directly</p>
           </div>
-          <span id="tableCounter" class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">0 rows</span>
+
+          <div class="flex flex-col gap-3 xl:items-end">
+            <div class="flex flex-wrap items-center gap-2">
+              <button onclick="addRow()" class="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 active:scale-[0.98]">
+                Add Row
+              </button>
+              <button onclick="addColumn()" class="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 active:scale-[0.98]">
+                Add Column
+              </button>
+              <button onclick="removeLastColumn()" class="rounded-2xl border border-red-200 bg-red-50 px-4 py-2 text-xs font-bold text-red-600 shadow-sm transition hover:bg-red-100 active:scale-[0.98]">
+                Remove Column
+              </button>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3">
+              <label class="flex items-center gap-2 text-xs font-semibold text-slate-500">
+                Height
+                <input id="tableHeight" type="range" min="320" max="1000" value="680" step="20" class="w-36 accent-indigo-600" />
+              </label>
+              <span id="tableCounter" class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">0 rows</span>
+            </div>
+          </div>
         </div>
 
-        <div class="max-h-[680px] overflow-auto bg-white p-4">
+        <div id="tableContainer" class="overflow-auto bg-white p-4" style="height: 680px;">
           <table id="editableTable" class="min-w-full border-separate border-spacing-0 text-sm">
             <tbody id="tableBody">
               <tr>
@@ -136,25 +155,40 @@
     const wikiTextEl = document.getElementById("wikiText");
     const firstRowHeaderEl = document.getElementById("firstRowHeader");
     const tableBodyEl = document.getElementById("tableBody");
+    const tableContainerEl = document.getElementById("tableContainer");
+    const wikiHeightEl = document.getElementById("wikiHeight");
+    const tableHeightEl = document.getElementById("tableHeight");
     const statusEl = document.getElementById("status");
     const wikiCounterEl = document.getElementById("wikiCounter");
     const tableCounterEl = document.getElementById("tableCounter");
 
     let tableData = [];
+    let columnWidths = [];
 
     wikiTextEl.addEventListener("input", updateCounters);
+
+    wikiHeightEl.addEventListener("input", () => {
+      wikiTextEl.style.minHeight = `${wikiHeightEl.value}px`;
+      wikiTextEl.style.height = `${wikiHeightEl.value}px`;
+    });
+
+    tableHeightEl.addEventListener("input", () => {
+      tableContainerEl.style.height = `${tableHeightEl.value}px`;
+    });
 
     function wikiToTable() {
       const wikiText = wikiTextEl.value.trim();
 
       if (!wikiText) {
         tableData = [];
+        columnWidths = [];
         renderTable();
         setStatus("No wiki table to convert.", "error");
         return;
       }
 
       tableData = parseWikiTable(wikiText);
+      columnWidths = [];
       renderTable();
       updateCounters();
       setStatus(tableData.length ? "Converted wiki table to editable table." : "No valid table row found.", tableData.length ? "success" : "error");
@@ -252,17 +286,53 @@
 
       const maxColumns = Math.max(...tableData.map(row => row.length));
       tableData = tableData.map(row => normalizeRow(row, maxColumns));
+      normalizeColumnWidths(maxColumns);
 
       tableData.forEach((rowData, rowIndex) => {
         const row = document.createElement("tr");
 
         rowData.forEach((cellData, columnIndex) => {
-          const cell = document.createElement(rowIndex === 0 && firstRowHeaderEl.checked ? "th" : "td");
-          cell.contentEditable = "true";
-          cell.dataset.row = String(rowIndex);
-          cell.dataset.column = String(columnIndex);
-          cell.textContent = cellData;
-          cell.className = getCellClass(rowIndex === 0 && firstRowHeaderEl.checked);
+          const isHeaderCell = rowIndex === 0 && firstRowHeaderEl.checked;
+          const cell = document.createElement(isHeaderCell ? "th" : "td");
+          cell.className = getCellClass(isHeaderCell);
+          cell.style.width = `${columnWidths[columnIndex]}px`;
+          cell.style.minWidth = `${columnWidths[columnIndex]}px`;
+          cell.style.maxWidth = `${columnWidths[columnIndex]}px`;
+          cell.style.position = "relative";
+
+          if (isHeaderCell) {
+            const wrapper = document.createElement("div");
+            wrapper.className = "flex items-center gap-2";
+
+            const text = document.createElement("div");
+            text.contentEditable = "true";
+            text.dataset.row = String(rowIndex);
+            text.dataset.column = String(columnIndex);
+            text.textContent = cellData;
+            text.className = "min-w-0 flex-1 outline-none";
+
+            const controls = document.createElement("div");
+            controls.className = "flex shrink-0 items-center gap-1";
+
+            controls.appendChild(createHeaderButton("+L", "Insert column before", "blue", () => insertColumn(columnIndex)));
+            controls.appendChild(createHeaderButton("+R", "Insert column after", "blue", () => insertColumn(columnIndex + 1)));
+            controls.appendChild(createHeaderButton("×", "Remove column", "red", () => deleteColumn(columnIndex)));
+
+            wrapper.appendChild(text);
+            wrapper.appendChild(controls);
+            cell.appendChild(wrapper);
+          } else {
+            cell.contentEditable = "true";
+            cell.dataset.row = String(rowIndex);
+            cell.dataset.column = String(columnIndex);
+            cell.textContent = cellData;
+          }
+
+          const resizeHandle = document.createElement("div");
+          resizeHandle.className = "absolute right-0 top-0 h-full w-1 cursor-col-resize bg-transparent transition hover:bg-blue-400";
+          resizeHandle.addEventListener("mousedown", event => startColumnResize(event, columnIndex));
+          cell.appendChild(resizeHandle);
+
           row.appendChild(cell);
         });
 
@@ -280,7 +350,7 @@
     }
 
     function getCellClass(isHeader) {
-      const baseClass = "min-w-40 border-b border-r border-slate-200 px-4 py-3 text-left outline-none focus:bg-blue-50 focus:ring-2 focus:ring-inset focus:ring-blue-400";
+      const baseClass = "border-b border-r border-slate-200 px-4 py-3 text-left outline-none focus:bg-blue-50 focus:ring-2 focus:ring-inset focus:ring-blue-400";
       return isHeader
         ? `${baseClass} bg-slate-100 font-bold text-slate-950`
         : `${baseClass} bg-white text-slate-700`;
@@ -313,12 +383,70 @@
 
       if (!tableData.length) {
         tableData = [["", ""]];
+        columnWidths = [180, 180];
       } else {
         tableData = tableData.map(row => [...row, ""]);
+        columnWidths.push(180);
       }
 
       renderTable();
       setStatus("Added new column.", "success");
+    }
+
+    function insertColumn(columnIndex) {
+      syncTableDataFromDom();
+
+      if (!tableData.length) {
+        tableData = [[""]];
+        columnWidths = [180];
+      } else {
+        tableData = tableData.map(row => {
+          const nextRow = [...row];
+          nextRow.splice(columnIndex, 0, "");
+          return nextRow;
+        });
+        columnWidths.splice(columnIndex, 0, 180);
+      }
+
+      renderTable();
+      setStatus("Inserted new column.", "success");
+    }
+
+    function removeLastColumn() {
+      syncTableDataFromDom();
+
+      if (!tableData.length) {
+        setStatus("No column to remove.", "error");
+        return;
+      }
+
+      const maxColumns = Math.max(...tableData.map(row => row.length));
+      if (maxColumns <= 1) {
+        setStatus("Cannot remove the last column.", "error");
+        return;
+      }
+
+      deleteColumn(maxColumns - 1);
+    }
+
+    function deleteColumn(columnIndex) {
+      syncTableDataFromDom();
+
+      if (!tableData.length) {
+        setStatus("No column to remove.", "error");
+        return;
+      }
+
+      const maxColumns = Math.max(...tableData.map(row => row.length));
+      if (maxColumns <= 1) {
+        setStatus("Cannot remove the last column.", "error");
+        return;
+      }
+
+      tableData = tableData.map(row => row.filter((_, index) => index !== columnIndex));
+      columnWidths = columnWidths.filter((_, index) => index !== columnIndex);
+      renderTable();
+      setStatus("Removed column.", "success");
     }
 
     function deleteRow(rowIndex) {
@@ -349,10 +477,59 @@
     function clearAll() {
       wikiTextEl.value = "";
       tableData = [];
+      columnWidths = [];
       renderTable();
       updateCounters();
       setStatus("Cleared.", "success");
       wikiTextEl.focus();
+    }
+
+    function normalizeColumnWidths(maxColumns) {
+      while (columnWidths.length < maxColumns) columnWidths.push(180);
+      if (columnWidths.length > maxColumns) columnWidths = columnWidths.slice(0, maxColumns);
+    }
+
+    function createHeaderButton(label, title, variant, onClick) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = label;
+      button.title = title;
+      button.className = variant === "red"
+        ? "rounded-lg border border-red-200 bg-red-50 px-2 py-1 text-[10px] font-bold text-red-600 transition hover:bg-red-100"
+        : "rounded-lg border border-blue-200 bg-blue-50 px-2 py-1 text-[10px] font-bold text-blue-700 transition hover:bg-blue-100";
+      button.onclick = onClick;
+      return button;
+    }
+
+    function startColumnResize(event, columnIndex) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const startX = event.clientX;
+      const startWidth = columnWidths[columnIndex] || 180;
+
+      function onMouseMove(moveEvent) {
+        const nextWidth = Math.max(100, startWidth + moveEvent.clientX - startX);
+        columnWidths[columnIndex] = nextWidth;
+        applyColumnWidth(columnIndex, nextWidth);
+      }
+
+      function onMouseUp() {
+        document.removeEventListener("mousemove", onMouseMove);
+        document.removeEventListener("mouseup", onMouseUp);
+      }
+
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("mouseup", onMouseUp);
+    }
+
+    function applyColumnWidth(columnIndex, width) {
+      const cells = tableBodyEl.querySelectorAll(`td:nth-child(${columnIndex + 1}), th:nth-child(${columnIndex + 1})`);
+      cells.forEach(cell => {
+        cell.style.width = `${width}px`;
+        cell.style.minWidth = `${width}px`;
+        cell.style.maxWidth = `${width}px`;
+      });
     }
 
     function normalizeRow(row, maxColumns) {
